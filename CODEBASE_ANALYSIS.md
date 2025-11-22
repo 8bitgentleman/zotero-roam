@@ -531,6 +531,127 @@ values: (text, cb) => {
 
 ---
 
+## Roam API Usage Analysis
+
+### Current API Usage (from `/home/user/roam-docs/`)
+
+Based on official Roam documentation, here's how zotero-roam uses the Roam APIs:
+
+#### What's Being Used Correctly
+- `window.roamAlphaAPI.data.block.create()` - Creating blocks
+- `window.roamAlphaAPI.data.page.create()` - Creating pages
+- `window.roamAlphaAPI.ui.commandPalette.addCommand()` - Command palette integration
+- `window.roamAlphaAPI.util.generateUID()` - UID generation
+- `window.roamAlphaAPI.util.dateToPageTitle()` - Date utilities
+- `window.roamAlphaAPI.ui.rightSidebar.addWindow()` - Sidebar integration
+
+#### Critical Issues Found
+
+**1. Using SYNC API Instead of ASYNC (Deprecation Risk)**
+
+**Location:** `src/services/roam/index.ts:189, 213, 231, 244, 255, 308`
+
+```javascript
+// Current (SYNC - will be deprecated):
+window.roamAlphaAPI.data.q(`[:find ...]`)
+
+// Should use (ASYNC):
+await window.roamAlphaAPI.data.async.q(`[:find ...]`)
+```
+
+From Roam docs: *"Eventually Roam will migrate to the async API and the sync functions will be deprecated. If you are building a new extension you should prefer using these to avoid migrating in the future."*
+
+**2. Polling Instead of Pull Watches (Major Performance Issue)**
+
+**Location:** `src/components/GraphWatcher/index.tsx:66-76`
+
+Current implementation polls every 1 second with setInterval + querySelectorAll. Roam provides `addPullWatch` for reactive updates:
+
+```javascript
+// Current (inefficient):
+setInterval(() => {
+    document.querySelectorAll("h1.rm-title-display")...
+}, 1000);
+
+// Should use:
+window.roamAlphaAPI.data.addPullWatch(
+    "[:block/string {:block/children ...}]",
+    '[:block/uid "page-uid"]',
+    (before, after) => { /* react to changes */ }
+);
+```
+
+**3. Missing Context Menu Integration**
+
+Roam provides official APIs for adding to context menus that zotero-roam doesn't use:
+
+```javascript
+// Available but not used:
+roamAlphaAPI.ui.blockContextMenu.addCommand({
+    label: "Zotero: Import Citation",
+    callback: (context) => { /* ... */ }
+});
+
+roamAlphaAPI.ui.pageContextMenu.addCommand({
+    label: "Zotero: View in Zotero",
+    'display-conditional': (ctx) => ctx['page-title'].startsWith('@'),
+    callback: (context) => { /* ... */ }
+});
+
+roamAlphaAPI.ui.pageRefContextMenu.addCommand({
+    label: "Zotero: Open Item Details",
+    callback: (context) => { /* ... */ }
+});
+```
+
+**4. Not Using Roam's Bundled Dependencies**
+
+**Location:** `package.json`
+
+Roam bundles these dependencies (available on `window`):
+- `window.React` (v17.0.2)
+- `window.ReactDOM` (v17.0.2)
+- `window.Blueprint.Core` (v3.50.4)
+- `window.Blueprint.Select` (v3.18.6)
+- `window.Blueprint.DateTime` (v3.23.14)
+- `window.idb` (v6.0.0)
+
+zotero-roam bundles its own copies, increasing bundle size unnecessarily.
+
+**5. Query Timeout Risk**
+
+From Roam docs: *"q, pull, and variant API functions now have a timeout of 20 seconds. Throws an error with message 'Query and/or pull expression took too long to run.'"*
+
+Large Zotero libraries could trigger this timeout. No error handling for this case exists.
+
+#### Recommended Roam API Enhancements
+
+| Feature | Roam API | Benefit |
+|---------|----------|---------|
+| Watch citekey pages | `addPullWatch` | Replace 1s polling, reactive updates |
+| Slash commands | `slashCommand.addCommand` | Quick citation insertion |
+| Block context menu | `blockContextMenu.addCommand` | Add Zotero actions to blocks |
+| Page context menu | `pageContextMenu.addCommand` | Actions on citekey pages |
+| Multi-select menu | `msContextMenu.addCommand` | Bulk operations |
+| Graph view | `graphView.addCallback` | Visualize Zotero connections |
+
+#### Datalog Query Props Available
+
+For querying Roam data, these attributes are available (from `Roam Research Block Datalog Props.md`):
+
+| Attribute | Purpose |
+|-----------|---------|
+| `:block/string` | Block text content |
+| `:block/uid` | Unique identifier |
+| `:block/refs` | Referenced pages/blocks |
+| `:block/children` | Child blocks |
+| `:block/page` | Parent page |
+| `:node/title` | Page title |
+| `:create/time` | Creation timestamp |
+| `:edit/time` | Last edit timestamp |
+
+---
+
 ## Quick Reference: Common Tasks
 
 ### Finding where items are fetched
