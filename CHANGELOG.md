@@ -1,5 +1,15 @@
 ## Changelog
 
+### [0.7.24](https://github.com/alixlahuec/zotero-roam/compare/0.7.23...0.7.24) - 2026-01-26
+
+#### Features
+
+- update release automation
+
+#### Bug Fixes
+
+- prevent settings overwrite on reload ([#790](https://github.com/alixlahuec/zotero-roam/issues/790))
+
 ### [0.7.23](https://github.com/alixlahuec/zotero-roam/compare/0.7.22...0.7.23) - 2026-01-26
 
 #### Security

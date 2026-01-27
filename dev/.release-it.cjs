@@ -25,6 +25,6 @@ module.exports = {
 	},
 	"npm": {
 		"allowSameVersion": false,
-		"publish": true
+		"publish": false
 	}
 };

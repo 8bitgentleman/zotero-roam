@@ -10,11 +10,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/alixlahuec/zotero-roam.git"
+        "url": "git+https://github.com/8bitgentleman/zotero-roam.git"
     },
     "bugs": {
-        "url": "https://github.com/alixlahuec/zotero-roam/issues",
-        "email": "alix.lahuec@onmail.com"
+        "url": "https://github.com/8bitgentleman/zotero-roam/issues"
     },
     "type": "module",
     "main": "src/index.tsx",

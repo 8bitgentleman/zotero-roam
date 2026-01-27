@@ -65,7 +65,7 @@ jobs:
 
   makeRelease:
     if: contains(github.event.head_commit.message, 'chore(release):')
-    name: Make release
+    name: Make GitHub release
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -77,18 +77,17 @@ jobs:
           node-version: 18
           cache: 'npm'
       - run: npm ci
-      - run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
 
       - run: |
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
-      - name: Publish release @beta
+      - name: Create GitHub release @beta
         if: ${{ github.ref_name == 'beta' && contains(github.event.head_commit.message, '-beta.') }}
         run: |
           npm run publish-release:beta
 
-      - name: Publish release @latest
+      - name: Create GitHub release @latest
         if: ${{ github.ref_name == 'main' && !contains(github.event.head_commit.message, '-beta.') }}
         run: |
           npm run publish-release:latest
