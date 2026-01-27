@@ -120,6 +120,11 @@ export default defineConfig(({ command, mode }) => {
 				"junit",
 				...(process.env.GITHUB_ACTIONS ? ["github-actions"] : [])
 			],
+			server: {
+				deps: {
+					inline: ["@exodus/bytes"]
+				}
+			},
 			setupFiles: ["dev/vitest.setup.js"],
 			typecheck: {
 				enabled: true
