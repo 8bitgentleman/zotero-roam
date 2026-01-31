@@ -1,5 +1,25 @@
 ## Changelog
 
+### [0.7.26](https://github.com/8bitgentleman/zotero-roam/compare/0.7.25...0.7.26) - 2026-01-31
+
+#### Bug Fixes
+
+- fix JSON parsing error when viewing PDF linked notes
+  - Add try-catch around annotationPosition parsing in simplifyZoteroAnnotations()
+  - Fallback to default position {pageIndex: 0} if parsing fails
+  - Prevents crash when annotation position data is malformed or missing
+- improve error messages for API failures
+  - Replace technical "AxiosError" messages with user-friendly descriptions
+  - Special handling for 404, 403, 500+ status codes and network errors
+  - Better UX when external APIs (Semantic Scholar) return errors
+
+#### Features
+
+- add check-citekeys.js script for Better BibTeX verification
+  - Helps users verify that citekeys are properly configured
+  - Shows which items have/don't have Citation Key in Extra field
+  - Provides guidance for fixing missing citekeys
+
 ### [0.7.25](https://github.com/8bitgentleman/zotero-roam/compare/0.7.24...0.7.25) - 2026-01-29
 
 #### Bug Fixes
