@@ -20,9 +20,9 @@ function CitekeyMenuFactory({ menus }: { menus: Element[] }){
 	const [{ trigger }] = usePageMenuSettings();
 	const [{ dataRequests }] = useRequestsSettings();
 
-	const itemQueries = useItems(dataRequests, { 
-		select: (datastore) => datastore.data, 
-		notifyOnChangeProps: ["data"] 
+	const itemQueries = useItems(dataRequests, {
+		select: (datastore) => datastore.data,
+		notifyOnChangeProps: ["data"]
 	});
 
 	const data = useMemo(() => itemQueries.map(q => q.data || []).flat(1), [itemQueries]);
@@ -52,7 +52,7 @@ function CitekeyMenuFactory({ menus }: { menus: Element[] }){
 						const { item, div } = menu;
 						return (
 							createPortal(<CitekeyMenu key={i} item={item} itemList={itemList} />, div)
-						);	
+						);
 					}
 				});
 		}

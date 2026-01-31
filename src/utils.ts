@@ -832,7 +832,16 @@ function simplifyZoteroAnnotations(annotations: ZItemAnnotation[]): ZSimplifiedA
 		const day_modified = makeDNP(date_modified, { brackets: false });
 		const library = annot.library.type + "s/" + annot.library.id;
 		const libLoc = library.startsWith("groups/") ? library : "library";
-		const position = JSON.parse(annotationPosition);
+		// Parse annotationPosition with error handling
+		let position;
+		try {
+			position = annotationPosition && typeof annotationPosition === 'string'
+				? JSON.parse(annotationPosition)
+				: annotationPosition || { pageIndex: 0 };
+		} catch (e) {
+			console.warn('Failed to parse annotationPosition:', annotationPosition, e);
+			position = { pageIndex: 0 };
+		}
 		const link_pdf = `zotero://open-pdf/${libLoc}/items/${parent_item}`;
 		const link_page = link_pdf + `?page=${position.pageIndex + 1}`;
 
