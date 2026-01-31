@@ -37,3 +37,5 @@ storybook-static/
 
 # VSCode workspace
 *.code-workspace
+CLAUDE.md
+.DS_Store

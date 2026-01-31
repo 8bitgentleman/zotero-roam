@@ -205,7 +205,7 @@ const ExtensionIcon = memo<ExtensionIconProps>(function ExtensionIcon(props) {
 				<MenuItem disabled={!allowContext} text="Dashboard" icon="dashboard" labelElement={betaTag} onClick={openDashboard} />
 				<MenuItem disabled={!allowContext} text="Search in library" icon="search" onClick={openSearchPanel} />
 				<MenuItem text="View logs" icon="console" onClick={openLogger} />
-				<MenuItem text="Roadmap" icon="map-create" href="https://alix.canny.io/zoteroroam" target="_blank" labelElement={newTag} />
+				<MenuItem text="Roadmap" icon="map-create" href="https://github.com/users/8bitgentleman/projects/1/views/2" target="_blank" labelElement={newTag} />
 			</Menu>
 		);
 	}, [allowContext, openDashboard, openLogger, openSearchPanel, openSettingsPanel]);
