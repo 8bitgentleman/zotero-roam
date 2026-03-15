@@ -71,27 +71,30 @@ type MakeItemMetadataArgs = {
 	version?: number,
 	data?: Partial<Mocks.ItemTop["data"]>
 };
-export const makeItemMetadata = ({ citekey = false, itemType = "journalArticle", key = "__NO_UNIQUE_KEY__", library, title = "", version = 1, data = {} }: MakeItemMetadataArgs): Omit<Mocks.ItemTop, "meta"> => ({
-	data: {
-		creators: [],
-		collections: [],
-		dateAdded: "",
-		dateModified: "",
-		itemType,
-		key,
-		extra: citekey ? `Citation Key: ${citekey}` : "",
-		relations: {},
-		tags: [],
-		title,
-		version,
-		...data
-	},
-	has_citekey: citekey ? true : false,
-	key: citekey || key,
-	library: makeLibraryMetadata(library),
-	links: makeEntityLinks({ key, library }),
-	version
-});
+export const makeItemMetadata = ({ citekey = false, itemType = "journalArticle", key = "__NO_UNIQUE_KEY__", library, title = "", version = 1, data = {} }: MakeItemMetadataArgs): Omit<Mocks.ItemTop, "meta"> => {
+	const effectiveCitekey = data.citationKey || citekey;
+	return ({
+		data: {
+			creators: [],
+			collections: [],
+			dateAdded: "",
+			dateModified: "",
+			itemType,
+			key,
+			extra: citekey ? `Citation Key: ${citekey}` : "",
+			relations: {},
+			tags: [],
+			title,
+			version,
+			...data
+		},
+		has_citekey: effectiveCitekey ? true : false,
+		key: effectiveCitekey || key,
+		library: makeLibraryMetadata(library),
+		links: makeEntityLinks({ key, library }),
+		version
+	});
+};
 
 
 export const makeLibraryMetadata = (library: Mocks.Library): Mocks.EntityLibrary => {

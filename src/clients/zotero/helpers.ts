@@ -130,7 +130,7 @@ function makeTagMap(tags: ZoteroAPI.Tag[]) {
 
 /** Merges two datasets. As the match is done on the `data.key` property, both items and collections can be matched. For items, citekeys are extracted.
  */
-function matchWithCurrentData<T extends { data: { key: string, extra?: string }, key: string }>(
+function matchWithCurrentData<T extends { data: { key: string, extra?: string, citationKey?: string }, key: string }>(
 	update: { modified?: T[], deleted?: string[] },
 	arr: T[] = [],
 	{ with_citekey = false } = {}
