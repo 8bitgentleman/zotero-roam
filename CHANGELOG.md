@@ -1,5 +1,14 @@
 ## Changelog
 
+### [0.7.27](https://github.com/8bitgentleman/zotero-roam/compare/0.7.26...0.7.27) - 2026-03-15
+
+#### Bug Fixes
+
+- fix citekeys showing as random strings (e.g. @8NNHP96Y) in Zotero 8
+  - Read native `citationKey` field from item data, introduced in Zotero 8
+  - Falls back to Better BibTeX `extra` field format for backwards compatibility
+  - Items without either will still fall back to the internal Zotero key
+
 ### [0.7.26](https://github.com/8bitgentleman/zotero-roam/compare/0.7.25...0.7.26) - 2026-01-31
 
 #### Bug Fixes
