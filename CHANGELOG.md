@@ -1,5 +1,13 @@
 ## Changelog
 
+### [0.7.28](https://github.com/8bitgentleman/zotero-roam/compare/0.7.27...0.7.28) - 2026-03-15
+
+#### Bug Fixes
+
+- update type constraints and mock factory for citationKey support
+  - `matchWithCurrentData()` generic now includes `citationKey` in its type constraint
+  - `makeItemMetadata()` mock factory derives `has_citekey`/`key` from `data.citationKey`
+
 ### [0.7.27](https://github.com/8bitgentleman/zotero-roam/compare/0.7.26...0.7.27) - 2026-03-15
 
 #### Bug Fixes
