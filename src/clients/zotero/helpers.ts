@@ -71,13 +71,16 @@ type WithHasCitekey<T> = T & { has_citekey: boolean };
  * @param arr - The items to scan
  * @returns The processed dataset : each item gains a `has_citekey` property, and its `key` property is assigned its citekey 
  */
-function extractCitekeys<T extends { key: string, data: { extra?: string } }>(arr: T[]): WithHasCitekey<T>[] {
+function extractCitekeys<T extends { key: string, data: { citationKey?: string, extra?: string } }>(arr: T[]): WithHasCitekey<T>[] {
 	const itemList = [...arr];
 	return itemList.map(item => {
 		let { key } = item;
 		let has_citekey = false;
 
-		if (typeof (item.data.extra) !== "undefined") {
+		if (item.data.citationKey) {
+			key = item.data.citationKey;
+			has_citekey = true;
+		} else if (typeof (item.data.extra) !== "undefined") {
 			if (item.data.extra.includes("Citation Key: ")) {
 				key = item.data.extra.match("Citation Key: (.+)")?.[1] || key;
 				has_citekey = true;

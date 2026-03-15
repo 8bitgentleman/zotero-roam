@@ -22,12 +22,16 @@ const { path: userPath } = userLibrary;
 test("Extracting citekeys for Zotero items", () => {
 	const cases = [
 		{ key: "ABCD1234", data: { extra: "Citation Key: someCitekey1994" } },
-		{ key: "PQRST789", data: { extra: "" } }
+		{ key: "PQRST789", data: { extra: "" } },
+		{ key: "8NNHP96Y", data: { citationKey: "delandaNewPhilosophySociety2006", extra: "" } },
+		{ key: "ZSEIMWDM", data: { citationKey: "intensiveScienceVirtualPhilosophy2002", extra: "Citation Key: intensiveScienceVirtualPhilosophy2002" } }
 	];
 
 	const expectations = [
 		{ key: "someCitekey1994", data: { extra: "Citation Key: someCitekey1994" }, has_citekey: true },
-		{ key: "PQRST789", data: { extra: "" }, has_citekey: false }
+		{ key: "PQRST789", data: { extra: "" }, has_citekey: false },
+		{ key: "delandaNewPhilosophySociety2006", data: { citationKey: "delandaNewPhilosophySociety2006", extra: "" }, has_citekey: true },
+		{ key: "intensiveScienceVirtualPhilosophy2002", data: { citationKey: "intensiveScienceVirtualPhilosophy2002", extra: "Citation Key: intensiveScienceVirtualPhilosophy2002" }, has_citekey: true }
 	];
 
 	expect(extractCitekeys(cases)).toEqual(expectations);
