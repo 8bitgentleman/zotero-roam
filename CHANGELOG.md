@@ -1,5 +1,12 @@
 ## Changelog
 
+### [0.7.29](https://github.com/8bitgentleman/zotero-roam/compare/0.7.28...0.7.29) - 2026-05-26
+
+#### Bug Fixes
+
+- fix topbar icon disappearing after Roam topbar HTML update
+  - Fall back to `.rm-topbar__left-spacer` when `.rm-find-or-create-wrapper` is no longer present
+
 ### [0.7.28](https://github.com/8bitgentleman/zotero-roam/compare/0.7.27...0.7.28) - 2026-03-15
 
 #### Bug Fixes
