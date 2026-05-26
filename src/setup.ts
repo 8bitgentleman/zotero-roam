@@ -380,7 +380,8 @@ export function setupPortals(){
 
 	unmountExtensionIfExists();
 
-	const roamSearchbar = document.querySelector(".rm-topbar .rm-find-or-create-wrapper");
+	// `.rm-find-or-create-wrapper` was removed in a Roam topbar update; fall back to `.rm-topbar__left-spacer`
+	const roamSearchbar = document.querySelector(".rm-topbar .rm-find-or-create-wrapper") ?? document.querySelector(".rm-topbar .rm-topbar__left-spacer");
 	const extensionSlot = document.createElement("span");
 	extensionSlot.id = EXTENSION_SLOT_ID;
 	roamSearchbar?.insertAdjacentElement("afterend", extensionSlot);

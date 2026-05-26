@@ -483,23 +483,26 @@ describe("Portals setup", () => {
 	const testWrapper = document.createElement("div");
 
 	describe("Extension slot", () => {
-		const cases = [true, false];
+		const cases: [string, string | null][] = [
+			["old topbar (rm-find-or-create-wrapper)", "rm-find-or-create-wrapper"],
+			["new topbar (rm-topbar__left-spacer)", "rm-topbar__left-spacer"],
+			["no topbar", null],
+		];
 
 		test.each(cases)(
-			"Topbar exists: %s",
-			(topbar_exists) => {
-				const className = topbar_exists
-					? ".rm-topbar .rm-find-or-create-wrapper"
-					: "";
+			"%s",
+			(_label, childClass) => {
 				const { container, queryByTestId } = render(
-					<div className={className} data-testid="test-element"></div>,
+					childClass
+						? <div className="rm-topbar"><div className={childClass} data-testid="test-element"></div></div>
+						: <div data-testid="test-element"></div>,
 					{ container: document.body.appendChild(testWrapper) }
 				);
 
 				act(() => setupPortals());
 
 				expect(container.querySelector(`#${EXTENSION_SLOT_ID}`))
-					.toBe(topbar_exists
+					.toBe(childClass !== null
 						? queryByTestId("test-element")!.nextSibling
 						: null);
 
