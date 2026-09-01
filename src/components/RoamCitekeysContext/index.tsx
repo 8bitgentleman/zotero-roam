@@ -1,4 +1,4 @@
-import { FC, createContext, useCallback, useContext, useMemo, useState } from "react";
+import { FC, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { getCitekeyPages } from "@services/roam";
 
@@ -15,6 +15,22 @@ const RoamCitekeysProvider: FC = ({ children }) => {
 	const update = useCallback(() => {
 		setRoamCitekeys(() => getCitekeyPages());
 	}, []);
+
+	// Imports that don't go through the UI (AI tools, or any other consumer of the import functions) can create citekey pages.
+	// Without this, the map would stay stale until the next mount, and the UI would treat those pages as missing.
+	useEffect(() => {
+		const refreshIfPageCreated = (event: CustomEvent<{ page?: { new?: boolean } }>) => {
+			if (event.detail?.page?.new) { update(); }
+		};
+
+		document.addEventListener("zotero-roam:metadata-added", refreshIfPageCreated);
+		document.addEventListener("zotero-roam:notes-added", refreshIfPageCreated);
+
+		return () => {
+			document.removeEventListener("zotero-roam:metadata-added", refreshIfPageCreated);
+			document.removeEventListener("zotero-roam:notes-added", refreshIfPageCreated);
+		};
+	}, [update]);
 
 	const contextValue = useMemo(() => [roamCitekeys, update] as const, [roamCitekeys, update]);
 

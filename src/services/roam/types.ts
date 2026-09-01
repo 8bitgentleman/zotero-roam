@@ -176,11 +176,46 @@ export namespace Roam {
 
 	}
 
+	/** The access an agent's connection needs in order to call an extension-registered AI tool. A read-only AI connection can only call `read` tools. */
+	export type AIToolScope = "read" | "append" | "edit";
+
+	/** The context passed as second argument to an AI tool's handler */
+	export interface AIToolContext {
+		/** The uid of the AI user the call came from. Absent when the tool is invoked directly from JS. */
+		tokenUserUid?: string,
+		/** Runs `fn` with the graph writes it issues attributed to the calling AI, with the AI's token scopes in effect. The callback must issue its writes synchronously - never pass an async function. */
+		asTokenUser: <T>(fn: () => T) => T
+	}
+
+	/** An AI tool, as registered through `extensionAPI.ai.addTool`. Agents connected through Roam's MCP server discover these via `get_graph_guidelines` and invoke them via `call_extension_tool`. */
+	export interface AITool {
+		/** Up to 64 characters from `A-Za-z0-9_-` */
+		name: string,
+		/** Tells the agent what the tool does and when to use it. Up to 2000 characters. */
+		description: string,
+		/** The access an agent's connection needs to call this tool. Defaults to `edit`. */
+		scope?: AIToolScope,
+		/** Draft-07 JSON Schema describing the handler's args. Roam validates the agent's args against it before the handler runs. */
+		inputSchema?: Record<string, unknown>,
+		/** Called with the agent's args and a context object. The JSON-serializable return value (or resolved Promise) is what the agent reads; throwing fails the call with the error's message. Handlers have a 60-second deadline. */
+		handler: (args: Record<string, any>, context: AIToolContext) => unknown
+	}
+
 	/**
 	 * Methods available via the `extensionAPI` object, passed to the `onload` function of an extension.
 	 * @see https://roamresearch.com/#/app/developer-documentation/page/y31lhjIqU
 	 */
 	export interface ExtensionAPI {
+		/**
+		 * Experimental - extension AI tools, surfaced through Roam's MCP server.
+		 * Absent on Roam builds that predate the feature (Local API < 1.1.5), so always feature-detect.
+		 * Registered tools are tied to the extension and removed automatically on unload; re-adding a name updates the existing tool.
+		 */
+		ai?: {
+			addTool: (tool: AITool) => null,
+			removeTool: (arg: { name: string }) => null
+		},
+
 		settings: {
 			/** Getter for a single setting */
 			get: <T = unknown>(key: string) => T | undefined,
