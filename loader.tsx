@@ -7,6 +7,7 @@ import ClearCacheButton from "Components/ClearCacheButton";
 import { UserSettingsProvider } from "Components/UserSettings";
 
 import ZoteroRoam from "./src/api";
+import { registerAiTools, unregisterAiTools } from "@services/ai-tools";
 import { clearDefaultHooks } from "@services/events";
 import IDBDatabase from "@services/idb";
 import { unregisterSmartblockCommands } from "@services/smartblocks";
@@ -57,6 +58,14 @@ function onload({ extensionAPI }){
 	extensionAPI.settings.panel.create(panelConfig);
 	setup({ settings });
 
+	// Expose key functionality to agents connected through Roam's MCP server.
+	// The API is experimental, so a failure here must not take down the extension.
+	try {
+		registerAiTools({ extensionAPI });
+	} catch(e) {
+		console.error("zoteroRoam: failed to register AI tools", e);
+	}
+
 	render(
 		<HotkeysProvider dialogProps={{ globalGroupName: "zoteroRoam" }}>
 			<UserSettingsProvider extensionAPI={extensionAPI} init={{ ...settings, requests }}>
@@ -76,6 +85,11 @@ function onload({ extensionAPI }){
 
 function offload(){
 	clearDefaultHooks();
+	try {
+		unregisterAiTools();
+	} catch(e) {
+		console.error("zoteroRoam: failed to unregister AI tools", e);
+	}
 	unregisterSmartblockCommands();
 	unmountExtensionIfExists();
 	window.zoteroRoam.deleteDatabase();

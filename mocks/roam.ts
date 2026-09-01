@@ -6,6 +6,8 @@ export const uid_with_existing_block = "__UID_WITH_EXISTING_BLOCK__";
 export const uid_with_existing_block_with_children = "__UID_WITH_EXISTING_BLOCK_WITH_CHILDREN__";
 export const existing_block_uid = "__SOME_UID__";
 export const existing_block_uid_with_children = "__SOME_UID_WITH_CHILDREN__";
+export const existing_page_uid = "__PAGE_UID__";
+export const existing_page_with_content_uid = "__PAGE_WITH_CONTENT_UID__";
 
 function addPaletteCommand(){}
 
@@ -25,17 +27,13 @@ function findRoamBlock(_string, pageUID){
 	}
 }
 
-function findRoamPage(_title){
-	return false;
-}
+const findRoamPage = fn((_title: string): string | false => false);
 
 function getAllPages(){
 	return [];
 }
 
-function getCitekeyPages() {
-	return new Map([]);
-}
+const getCitekeyPages = fn((): Map<string, string> => new Map());
 
 function getCitekeyPagesWithEditTime(){
 	return new Map([]);
@@ -59,11 +57,33 @@ function getInitialedPages(keys) {
 	return [];
 }
 
-function importItemMetadata() {
-	return {};
+function hasBlockChildren(uid) {
+	return [uid_with_existing_block_with_children, existing_page_with_content_uid].includes(uid);
 }
 
-const importItemNotes = fn(() => {});
+/** The shape both import functions resolve with. Widened past the happy path, so that tests can stub failed and uncertain outcomes. */
+type MockImportOutcome = {
+	args: { blocks: unknown[], uid: string },
+	error: unknown,
+	page: { new: boolean, title: string, uid: string },
+	raw?: Record<string, unknown>,
+	success: boolean | null
+};
+
+const mockImportOutcome = ({ item }, uid): Promise<MockImportOutcome> => {
+	const pageUID = uid || existing_page_uid;
+	return Promise.resolve({
+		args: { blocks: [], uid: pageUID },
+		error: null,
+		page: { new: !uid, title: "@" + item.key, uid: pageUID },
+		raw: {},
+		success: true
+	});
+};
+
+const importItemMetadata = fn(mockImportOutcome);
+
+const importItemNotes = fn(mockImportOutcome);
 
 function makeDNP(date: Date | any, { brackets = true }: { brackets?: boolean } = {}) {
 	const thisdate = date.constructor === Date ? date : new Date(date);
@@ -103,6 +123,7 @@ export {
 	getCurrentCursorLocation,
 	getGraphName,
 	getInitialedPages,
+	hasBlockChildren,
 	importItemMetadata,
 	importItemNotes,
 	makeDNP,

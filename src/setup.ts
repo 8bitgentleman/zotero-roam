@@ -184,6 +184,13 @@ export function shouldQueryBePersisted(query: Query){
 	return defaultShouldDehydrateQuery(query);
 }
 
+/** Retrieves the extension's current settings from the extensionAPI store, merged with defaults.
+ * This is the single source of truth for "the extension's settings right now": the settings dialog writes through to the store on every change, so reading at call time always reflects the latest values.
+ */
+export function getCurrentSettings(extensionAPI: Roam.ExtensionAPI): UserSettings {
+	return setupInitialSettings((extensionAPI.settings.getAll() || {}) as Partial<UserSettings>);
+}
+
 /** Generates a merged settings object, combining user settings and defaults. */
 export function setupInitialSettings(settingsObject: Partial<UserSettings>): UserSettings{
 	const {
@@ -330,7 +337,7 @@ function configRoamDepot({ extensionAPI }: { extensionAPI: Roam.ExtensionAPI }){
 
 	// Subsequent loads: merge defaults in-memory only, don't write back
 	// This preserves user settings even if Roam returns incomplete data
-	const settings = setupInitialSettings(current || {});
+	const settings = getCurrentSettings(extensionAPI);
 	const requests = extensionAPI.settings.get<UserRequests>("requests") || {
 		dataRequests: [],
 		apiKeys: [],

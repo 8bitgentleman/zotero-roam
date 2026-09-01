@@ -224,6 +224,23 @@ function findRoamPage(
 	}
 }
 
+/** Checks if a Roam page or block has any children blocks
+ * @returns Whether the entity with the given UID has at least one child block
+ */
+function hasBlockChildren(
+	/** The UID of the Roam page or block */
+	uid: string
+) {
+	const childrenSearch = window.roamAlphaAPI.data.q<[[number]?]>(`[
+		:find ?c
+		:in $ ?uid
+		:where
+			[?p :block/uid ?uid]
+			[?p :block/children ?c]
+		]`, uid);
+	return childrenSearch.length > 0;
+}
+
 /** Retrieves the full list of Roam pages, sorted in alphabetical order
  * @returns The array of all page titles, sorted from A-Z
  */
@@ -500,6 +517,7 @@ export {
 	getCurrentCursorLocation,
 	getGraphName,
 	getInitialedPages,
+	hasBlockChildren,
 	importItemMetadata,
 	importItemNotes,
 	makeDNP,
