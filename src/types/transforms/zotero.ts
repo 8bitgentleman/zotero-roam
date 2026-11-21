@@ -57,7 +57,7 @@ export interface ZSimplifiedAnnotation {
 	tags: string[],
 	tags_string: string,
 	text: string | null,
-	type: "highlight" | "image"
+	type: ZoteroAPI.AnnotationType
 }
 
 export interface ZSimplifiedNote {

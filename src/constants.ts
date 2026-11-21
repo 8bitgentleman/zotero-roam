@@ -14,6 +14,14 @@ export const EXTENSION_SLOT_ID = "zotero-roam-slot";
 export const DEFAULT_TOAST_TIMEOUT = 1500;
 
 
+/** @constant {String} The default template for annotation comments */
+export const DEFAULT_TEMPLATE_COMMENT = "{{comment}}";
+/** @constant {String} The default template for highlight (and underline) annotations */
+export const DEFAULT_TEMPLATE_HIGHLIGHT = "[[>]] {{highlight}} ([p. {{page_label}}]({{link_page}})) {{tags_string}}";
+/** @constant {String} The default template for image (area) and ink annotations */
+export const DEFAULT_TEMPLATE_IMAGE = "[[>]] [{{type}} annotation] ([p. {{page_label}}]({{link_page}})) {{tags_string}}";
+
+
 /** @constant {String} The name for the extension's idb database */
 export const IDB_DATABASE_NAME = "ZOTERO_ROAM";
 /** @constant {Number} The current version for the extension's idb database */

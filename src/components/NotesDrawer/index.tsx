@@ -10,7 +10,7 @@ import { useBool } from "@hooks";
 import { simplifyZoteroNotes } from "./helpers";
 
 import { CustomClasses } from "../../constants";
-import { compareAnnotationIndices, formatZoteroNotes, makeDateFromAgo, simplifyZoteroAnnotations } from "../../utils";
+import { compareAnnotationIndices, formatZoteroNotes, isRegionAnnotation, makeDateFromAgo, simplifyZoteroAnnotations } from "../../utils";
 import { ZItemAnnotation, ZItemNote, ZSimplifiedAnnotation, ZSimplifiedNote, isZAnnotation, isZNote } from "Types/transforms";
 
 import "./_index.sass";
@@ -57,7 +57,7 @@ function Annotation({ annot }: AnnotationProps){
 		</div>
 		<div className="zr-annotation--highlight">
 			{text && <span style={highlightStyle}>{text}</span>}
-			{type == "image" && <code className={Classes.CODE}>Images are currently not supported</code>}
+			{isRegionAnnotation(type) && <Tag minimal={true} icon={type == "ink" ? "draw" : "media"}>{type == "ink" ? "Ink" : "Image"} annotation</Tag>}
 		</div>
 		{comment && <div className="zr-annotation--comment"><Icon icon="nest" intent="primary" size={14} />{comment}</div>}
 		<div zr-role="card-footer">

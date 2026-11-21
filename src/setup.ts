@@ -10,6 +10,9 @@ import { registerSmartblockCommands } from "@services/smartblocks";
 
 import { cleanError } from "./utils";
 import {
+	DEFAULT_TEMPLATE_COMMENT,
+	DEFAULT_TEMPLATE_HIGHLIGHT,
+	DEFAULT_TEMPLATE_IMAGE,
 	EXTENSION_PORTAL_ID,
 	EXTENSION_SLOT_ID,
 	IDB_REACT_QUERY_CLIENT_KEY,
@@ -206,8 +209,9 @@ export function setupInitialSettings(settingsObject: Partial<UserSettings>): Use
 		annotations: {
 			func: "",
 			group_by: false,
-			template_comment: "{{comment}}",
-			template_highlight: "[[>]] {{highlight}} ([p. {{page_label}}]({{link_page}})) {{tags_string}}",
+			template_comment: DEFAULT_TEMPLATE_COMMENT,
+			template_highlight: DEFAULT_TEMPLATE_HIGHLIGHT,
+			template_image: DEFAULT_TEMPLATE_IMAGE,
 			use: "default",
 			__with: "formatted",
 			...annotations

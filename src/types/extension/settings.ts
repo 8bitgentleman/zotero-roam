@@ -87,6 +87,8 @@ export interface SettingsAnnotations {
 	template_comment: string,
 	/** The template to use for highlights */
 	template_highlight: string,
+	/** The template to use for image (area) and ink annotations */
+	template_image: string,
 	/** The type of formatter to use for annotations */
 	use: "default" | "function",
 	/** The input type that should be passed to the custom formatting function */

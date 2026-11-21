@@ -22,6 +22,7 @@ export default {
 				group_by: false,
 				template_comment: "{{comment}}",
 				template_highlight: "[[>]] {{highlight}} ([p. {{page_label}}]({{link_page}})) {{tags_string}}",
+				template_image: "[[>]] [{{type}} annotation] ([p. {{page_label}}]({{link_page}})) {{tags_string}}",
 				use: "default",
 				__with: "raw"
 			},

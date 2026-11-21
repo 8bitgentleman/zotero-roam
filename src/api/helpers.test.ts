@@ -8,7 +8,7 @@ import { formatZoteroNotes, simplifyZoteroAnnotations } from "../utils";
 import { bibs, sampleAnnot, sampleAnnotPrevPage, sampleAnnotLaterPage, sampleImageAnnot, sampleNote, sampleOlderNote } from "Mocks";
 import { existing_block_uid, existing_block_uid_with_children, uid_with_existing_block, uid_with_existing_block_with_children } from "Mocks/roam";
 import { UserSettings } from "Types/extension";
-import { ZItem, ZItemTop } from "Types/transforms";
+import { ZItem, ZItemAnnotation, ZItemTop } from "Types/transforms";
 
 
 const simplifiedAnnot = simplifyZoteroAnnotations([sampleAnnot])[0];
@@ -223,8 +223,79 @@ describe("formatZoteroAnnotations", () => {
 			]);
 		expect(formatZoteroAnnotations([sampleImageAnnot]))
 			.toEqual([
-				// Images return null, and are filtered out
+				{
+					string: "[[>]] [image annotation] ([p. 25](zotero://open-pdf/library/items/Z90BMEE?page=25)) #[[TODO]]",
+					text: "[[>]] [image annotation] ([p. 25](zotero://open-pdf/library/items/Z90BMEE?page=25)) #[[TODO]]",
+					children: ["Good figure to dissect"]
+				}
 			]);
+	});
+
+	describe("non-text annotations", () => {
+		const withType = (annotationType: ZItemAnnotation["data"]["annotationType"], data: Partial<ZItemAnnotation["data"]> = {}): ZItemAnnotation => ({
+			...sampleImageAnnot,
+			data: { ...sampleImageAnnot.data, annotationType, ...data }
+		});
+
+		it("formats ink annotations with the image template", () => {
+			expect(formatZoteroAnnotations([withType("ink")]))
+				.toEqual([
+					{
+						string: "[[>]] [ink annotation] ([p. 25](zotero://open-pdf/library/items/Z90BMEE?page=25)) #[[TODO]]",
+						text: "[[>]] [ink annotation] ([p. 25](zotero://open-pdf/library/items/Z90BMEE?page=25)) #[[TODO]]",
+						children: ["Good figure to dissect"]
+					}
+				]);
+		});
+
+		it("omits the comment child when an image annotation has no comment", () => {
+			const [block] = formatZoteroAnnotations([withType("image", { annotationComment: "" })]);
+			expect(block.children).toEqual([]);
+		});
+
+		it("uses a custom image template, and applies the comment template to its comment", () => {
+			const settings = {
+				template_comment: "Note: {{comment}}",
+				template_image: "{{type}} | {{page_label}} | {{link_page}} | {{tags_string}} | {{comment}} | {{highlight}}|"
+			};
+			expect(formatZoteroAnnotations([sampleImageAnnot], settings))
+				.toEqual([
+					{
+						string: "image | 25 | zotero://open-pdf/library/items/Z90BMEE?page=25 | #[[TODO]] | Good figure to dissect | |",
+						text: "image | 25 | zotero://open-pdf/library/items/Z90BMEE?page=25 | #[[TODO]] | Good figure to dissect | |",
+						children: ["Note: Good figure to dissect"]
+					}
+				]);
+		});
+
+		it("does not let the image template leak into highlights", () => {
+			const [block] = formatZoteroAnnotations([sampleAnnot], { template_image: "IMAGE" });
+			expect(block.string).toBe(`[[>]] ${simplifiedAnnot.text} ([p. ${simplifiedAnnot.page_label}](${simplifiedAnnot.link_page})) ${simplifiedAnnot.tags_string}`);
+		});
+
+		it("formats underline annotations with the highlight template", () => {
+			const underline: ZItemAnnotation = { ...sampleAnnot, data: { ...sampleAnnot.data, annotationType: "underline" } };
+			expect(formatZoteroAnnotations([underline]))
+				.toEqual(formatZoteroAnnotations([sampleAnnot]));
+		});
+
+		test.each(["note", "text"] as const)(
+			"still skips %s annotations",
+			(type) => {
+				expect(formatZoteroAnnotations([withType(type)])).toEqual([]);
+			}
+		);
+
+		it("keeps image annotations in page order when grouping by day", () => {
+			const imageOnPage1 = withType("image", { annotationSortIndex: "00000|000100|00050" });
+			const [day] = formatZoteroAnnotations([sampleAnnot, imageOnPage1], { group_by: "day_added" });
+			expect(day.string).toBe("[[March 18th, 2022]]");
+			expect(day.children.map(child => child.string))
+				.toEqual([
+					"[[>]] [image annotation] ([p. 25](zotero://open-pdf/library/items/Z90BMEE?page=25)) #[[TODO]]",
+					`[[>]] ${simplifiedAnnot.text} ([p. ${simplifiedAnnot.page_label}](${simplifiedAnnot.link_page})) ${simplifiedAnnot.tags_string}`
+				]);
+		});
 	});
 
 	it("groups by day added", () => {

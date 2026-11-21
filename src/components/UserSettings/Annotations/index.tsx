@@ -42,6 +42,16 @@ const HIGHLIGHT_REPLACEMENTS = (
 	</>
 );
 
+const IMAGE_REPLACEMENTS = (
+	<>
+		Used for image (area) and ink annotations. Replacements available:
+		<Definition item="{{type}}" text="the annotation type (image or ink)" />
+		<Definition item="{{page_label}}" text="the page number" />
+		<Definition item="{{link_page}}" text="the link to the PDF page" />
+		<Definition item="{{tags_string}}" text="the tags associated with the annotation (comma-separated)" />
+	</>
+);
+
 function AnnotationsWidget(){
 	const [
 		{
@@ -49,6 +59,7 @@ function AnnotationsWidget(){
 			group_by,
 			template_comment,
 			template_highlight,
+			template_image,
 			use,
 			__with
 		},
@@ -69,6 +80,7 @@ function AnnotationsWidget(){
 			updateGroupBy: (val) => updateSingleValue("group_by", val),
 			updateTemplateComment: (val) => updateSingleValue("template_comment", val),
 			updateTemplateHighlight: (val) => updateSingleValue("template_highlight", val),
+			updateTemplateImage: (val) => updateSingleValue("template_image", val),
 			updateUseType: (val) => updateSingleValue("use", val),
 			updateWithFormat: (val) => updateSingleValue("__with", val)
 		};
@@ -84,6 +96,9 @@ function AnnotationsWidget(){
 		</RowCol>
 		<RowCol title="Highlight Template" description={HIGHLIGHT_REPLACEMENTS} >
 			<TextAreaInput label="Enter a template for highlight blocks" onChange={handlers.updateTemplateHighlight} value={template_highlight} />
+		</RowCol>
+		<RowCol title="Image Template" description={IMAGE_REPLACEMENTS} >
+			<TextAreaInput label="Enter a template for image annotation blocks" onChange={handlers.updateTemplateImage} value={template_image} />
 		</RowCol>
 		<RowGroup title="Formatter"
 			description="Choose a way to format annotations metadata when importing from Zotero."

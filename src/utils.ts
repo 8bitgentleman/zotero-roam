@@ -4,6 +4,8 @@ import zrToaster from "Components/ExtensionToaster";
 
 import { makeDNP } from "@services/roam";
 
+import { DEFAULT_TEMPLATE_COMMENT, DEFAULT_TEMPLATE_HIGHLIGHT, DEFAULT_TEMPLATE_IMAGE } from "./constants";
+
 import { SettingsAnnotations, SettingsNotes, ZItemReferenceFormat } from "Types/extension";
 import { AsBoolean } from "Types/helpers";
 import { RCitekeyPages, RImportableBlock, ZCleanItemTop, ZItem, ZItemAnnotation, ZItemAttachment, ZItemNote, ZItemTop, ZLibraryContents, ZLinkOptions, ZSimplifiedAnnotation, ZTagDictionary, isZAttachment, isZNoteOrAnnotation } from "Types/transforms";
@@ -265,6 +267,11 @@ function executeFunctionByName(functionName: string, context: Window | any, ..._
 	return ctx[func](...args);
 }
 
+/** Checks if an annotation is a region/drawing (no text content) */
+function isRegionAnnotation(type: ZSimplifiedAnnotation["type"]): type is "image" | "ink" {
+	return type == "image" || type == "ink";
+}
+
 /** Formats a single Zotero annotation with params
  * @returns A block object, ready for import into Roam
  */
@@ -272,40 +279,44 @@ function formatAnnotationWithParams(
 	/** The annotation to be formatted */
 	annotation: ZSimplifiedAnnotation,
 	/** Additional configuration  */
-	{ template_comment = "{{comment}}", template_highlight = "[[>]] {{highlight}} ([p. {{page_label}}]({{link_page}})) {{tags_string}}" }: Partial<Pick<SettingsAnnotations, "template_comment" | "template_highlight">> = {}
+	{
+		template_comment = DEFAULT_TEMPLATE_COMMENT,
+		template_highlight = DEFAULT_TEMPLATE_HIGHLIGHT,
+		template_image = DEFAULT_TEMPLATE_IMAGE
+	}: Partial<Pick<SettingsAnnotations, "template_comment" | "template_highlight" | "template_image">> = {}
 ) {
-	if(annotation.type == "highlight"){
-		const { comment, page_label, link_page, tags_string, text } = annotation;
+	const { comment, page_label, link_page, tags_string, text, type } = annotation;
 
-		let commentBlock = template_comment;
-		let highlightBlock = template_highlight;
-
-		const specs = {
-			comment,
-			highlight: text,
-			page_label,
-			link_page,
-			tags_string
-		};
-
-		for(const prop in specs){
-			commentBlock = commentBlock.replaceAll(`{{${prop}}}`, `${specs[prop]}`);
-			highlightBlock = highlightBlock.replaceAll(`{{${prop}}}`, `${specs[prop]}`);
-		}
-
-		return {
-			string: highlightBlock,
-			text: highlightBlock,
-			children: comment ? [commentBlock] : []
-		};
-
-	} else if(annotation.type == "image"){
-		// let { pageIndex, rects } = ann.position;
-		// TODO: Can rect selections be extracted into an image ?
-		return null;
+	let mainTemplate: string;
+	if(type == "highlight" || type == "underline"){
+		mainTemplate = template_highlight;
+	} else if(isRegionAnnotation(type)){
+		// Region/drawing annotations have no text, and the Web API doesn't serve their rendered image,
+		// so they are imported as metadata only : comment, tags, page link.
+		mainTemplate = template_image;
 	} else {
 		return null;
 	}
+
+	const specs = {
+		comment,
+		highlight: text ?? "",
+		page_label,
+		link_page,
+		tags_string,
+		type
+	};
+
+	const fill = (template: string) => Object.entries(specs)
+		.reduce((str, [prop, value]) => str.replaceAll(`{{${prop}}}`, `${value}`), template);
+
+	const mainBlock = fill(mainTemplate);
+
+	return {
+		string: mainBlock,
+		text: mainBlock,
+		children: comment ? [fill(template_comment)] : []
+	};
 }
 
 /** Default formatter for annotations 
@@ -315,7 +326,7 @@ function formatItemAnnotations(
 	/** The annotations to be formatted */
 	annotations: ZItemAnnotation[],
 	/** Additional configuration */
-	{ group_by = false, template_comment, template_highlight }: Partial<Pick<SettingsAnnotations, "group_by" | "template_comment" | "template_highlight">> = {}
+	{ group_by = false, template_comment, template_highlight, template_image }: Partial<Pick<SettingsAnnotations, "group_by" | "template_comment" | "template_highlight" | "template_image">> = {}
 ): RImportableBlock[] {
 	const annots = simplifyZoteroAnnotations(annotations);
 
@@ -340,9 +351,10 @@ function formatItemAnnotations(
 					text: makeDNP(`${date}T00:00`, { brackets: true }),
 					children: sortedAnnots
 						.map(ann => formatAnnotationWithParams(ann,
-							{ 
-								template_comment, 
-								template_highlight
+							{
+								template_comment,
+								template_highlight,
+								template_image
 							}
 						))
 						.filter(AsBoolean)
@@ -352,8 +364,9 @@ function formatItemAnnotations(
 	} else {
 		return annots
 			.map(ann => formatAnnotationWithParams(ann, { 
-				template_comment, 
-				template_highlight }))
+				template_comment,
+				template_highlight,
+				template_image }))
 			.filter(AsBoolean);
 	}
 }
@@ -925,6 +938,7 @@ export {
 	parseDOI,
 	pluralize,
 	searchEngine,
+	isRegionAnnotation,
 	simplifyZoteroAnnotations,
 	splitNotes,
 	transformDOIs

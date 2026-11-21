@@ -31,6 +31,9 @@ export namespace ZoteroAPI {
 	export type LibraryType = "user" | "group";
 	export type LibraryTypeURI = `${LibraryType}s`;
 
+	/** The annotation types the Zotero PDF/EPUB reader can create */
+	export type AnnotationType = "highlight" | "underline" | "note" | "text" | "image" | "ink";
+
 	/** Basic metadata for Zotero items and collections */
 	interface Base {
 		/** The entity's Zotero key */
@@ -117,7 +120,7 @@ export namespace ZoteroAPI {
 			/** The text of the highlight */
 			annotationText: string,
 			/** The type of annotation */
-			annotationType: "highlight" | "image",
+			annotationType: AnnotationType,
 			/** The Zotero key of the item's parent */
 			parentItem: string
 		}

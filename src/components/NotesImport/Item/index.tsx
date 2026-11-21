@@ -3,7 +3,7 @@ import { Classes, Checkbox, Tag } from "@blueprintjs/core";
 
 import { ListItem } from "Components/DataList";
 
-import { formatItemNotes, simplifyZoteroAnnotations } from "../../../utils";
+import { formatItemNotes, isRegionAnnotation, simplifyZoteroAnnotations } from "../../../utils";
 
 import { CustomClasses } from "../../../constants";
 import { ZItemAnnotation, ZItemNote, isZNote } from "Types/transforms";
@@ -20,7 +20,7 @@ function Annotation({ annotation }: { annotation: ZItemAnnotation}){
 
 	return <div className={CustomClasses.TEXT_SMALL} zr-role="note-contents">
 		{text && <span title={text} className={[CustomClasses.TEXT_AUXILIARY, Classes.TEXT_OVERFLOW_ELLIPSIS].join(" ")} style={highlightStyle}>{text}</span>}
-		{type == "image" && <code className={Classes.CODE}>Images are currently not supported</code>}
+		{isRegionAnnotation(type) && <Tag minimal={true} icon={type == "ink" ? "draw" : "media"}>{type == "ink" ? "Ink" : "Image"} annotation</Tag>}
 		{comment && <div title={comment} className={[CustomClasses.TEXT_SECONDARY, Classes.TEXT_OVERFLOW_ELLIPSIS].join(" ")}>{comment}</div>}
 	</div>;
 }

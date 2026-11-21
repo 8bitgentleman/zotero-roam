@@ -208,6 +208,7 @@ describe("Parsing initial user settings", () => {
 			group_by: false,
 			template_comment: "{{comment}}",
 			template_highlight: "[[>]] {{highlight}} ([p. {{page_label}}]({{link_page}})) {{tags_string}}",
+			template_image: "[[>]] [{{type}} annotation] ([p. {{page_label}}]({{link_page}})) {{tags_string}}",
 			use: "default",
 			__with: "formatted"
 		},
@@ -290,6 +291,13 @@ describe("Parsing initial user settings", () => {
 	it("should return defaults if given no settings", () => {
 		expect(JSON.stringify(setupInitialSettings({})))
 			.toEqual(JSON.stringify(defaults));
+	});
+
+	it("fills in the image template for settings saved before it existed", () => {
+		const { template_image: _, ...legacyAnnotations } = { ...defaults.annotations, template_highlight: "My highlight" };
+		const { annotations } = setupInitialSettings({ annotations: legacyAnnotations as never });
+		expect(annotations.template_highlight).toBe("My highlight");
+		expect(annotations.template_image).toBe(defaults.annotations.template_image);
 	});
 });
 
