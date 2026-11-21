@@ -24,27 +24,31 @@ type NotesListProps = {
 	}
 };
 
+/** Groups notes by the local calendar day they were added, most recent first */
+export function groupNotesByDay(notes: (ZItemAnnotation | ZItemNote)[]){
+	const day_dict = [...notes]
+		.sort((a, b) => new Date(a.data.dateAdded) > new Date(b.data.dateAdded) ? -1 : 1)
+		.reduce<Record<string, (ZItemAnnotation|ZItemNote)[]>>((dict, elem) => {
+			const ymd = new Date(elem.data.dateAdded).toLocaleDateString("en-CA");
+			if (dict[ymd]) {
+				dict[ymd].push(elem);
+			} else {
+				dict[ymd] = [elem];
+			}
+			return dict;
+		}, {});
+	return Object.keys(day_dict)
+		.sort((a, b) => a > b ? -1 : 1)
+		.map(date => ({
+			// A bare "YYYY-MM-DD" parses as UTC midnight; appending a time makes it parse as local midnight
+			date: makeDNP(`${date}T00:00`, { brackets: false }),
+			notes: day_dict[date]
+		}));
+}
+
 function NotesList({ notes, selectedKeys, selectProps }: NotesListProps){
 	const { setSelectedKeys, toggleNoteSelection } = selectProps;
-	const grouped_notes = useMemo(() => {
-		const day_dict = notes
-			.sort((a, b) => new Date(a.data.dateAdded) > new Date(b.data.dateAdded) ? -1 : 1)
-			.reduce<Record<string, (ZItemAnnotation|ZItemNote)[]>>((dict, elem) => {
-				const ymd = new Date(elem.data.dateAdded).toLocaleDateString("en-CA");
-				if (dict[ymd]) {
-					dict[ymd].push(elem);
-				} else {
-					dict[ymd] = [elem];
-				}
-				return dict;
-			}, {});
-		return Object.keys(day_dict)
-			.sort((a, b) => new Date(a) > new Date(b) ? -1 : 1)
-			.map(date => ({
-				date: makeDNP(date, { brackets: false }),
-				notes: day_dict[date]
-			}));
-	}, [notes]);
+	const grouped_notes = useMemo(() => groupNotesByDay(notes), [notes]);
 
 	const itemSelectProps = useMemo<DayListProps["itemSelectProps"]>(() => ({
 		bulkCheck: (keys) => {

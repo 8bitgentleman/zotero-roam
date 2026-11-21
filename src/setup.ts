@@ -187,10 +187,15 @@ export function shouldQueryBePersisted(query: Query){
 	return defaultShouldDehydrateQuery(query);
 }
 
+/** The settings UI used to save `group_by: "dateAdded"`, which the formatter never recognized. */
+function migrateAnnotationsGroupBy(annotations: Partial<UserSettings["annotations"]>): Partial<UserSettings["annotations"]> {
+	return (annotations.group_by as string) == "dateAdded" ? { group_by: "day_added" } : {};
+}
+
 /** Generates a merged settings object, combining user settings and defaults. */
 export function setupInitialSettings(settingsObject: Partial<UserSettings>): UserSettings{
 	const {
-		annotations = {},
+		annotations = {} as Partial<UserSettings["annotations"]>,
 		autocomplete = {},
 		copy = {},
 		// dataRequests = [],
@@ -214,7 +219,8 @@ export function setupInitialSettings(settingsObject: Partial<UserSettings>): Use
 			template_image: DEFAULT_TEMPLATE_IMAGE,
 			use: "default",
 			__with: "formatted",
-			...annotations
+			...annotations,
+			...migrateAnnotationsGroupBy(annotations)
 		},
 		autocomplete: {
 			display_char: "",
