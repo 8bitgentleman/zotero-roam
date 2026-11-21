@@ -1,5 +1,19 @@
 ## Changelog
 
+### [0.8.0](https://github.com/8bitgentleman/zotero-roam/compare/0.7.29...0.8.0) - 2026-11-21
+
+#### Features
+
+- import image and ink annotations instead of skipping them (#10)
+  - New "Image Template" annotation setting, with `{{type}}`, `{{page_label}}`, `{{link_page}}`, `{{tags_string}}` and `{{comment}}` placeholders
+  - Imported as a block linking to the PDF page, with the annotation's comment as a child block; the image itself is not rendered
+
+#### Bug Fixes
+
+- fix day headers in the notes import dialog showing the previous day in timezones west of UTC
+- fix "group by day added" annotation setting having no effect; values saved by the old settings UI are migrated on load
+- underline annotations are now imported using the highlight template
+
 ### [0.7.29](https://github.com/8bitgentleman/zotero-roam/compare/0.7.28...0.7.29) - 2026-05-26
 
 #### Bug Fixes
