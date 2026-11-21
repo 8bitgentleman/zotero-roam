@@ -11,7 +11,7 @@ const { Provider: AnnotationsProvider, useSettings: useAnnotationsSettings } = n
 });
 
 const GROUP_BY_OPTIONS = [
-	{ label: "Group by date added", value: "dateAdded" },
+	{ label: "Group by date added", value: "day_added" },
 	{ label: "Don't group annotations", value: false }
 ];
 

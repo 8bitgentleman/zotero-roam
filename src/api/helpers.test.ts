@@ -227,6 +227,19 @@ describe("formatZoteroAnnotations", () => {
 			]);
 	});
 
+	it("groups by day added when the setting was saved by the old settings UI", () => {
+		// Older versions of the settings UI stored "dateAdded" rather than "day_added"
+		const { annotations: legacySettings } = setupInitialSettings({
+			annotations: { group_by: "dateAdded" } as unknown as UserSettings["annotations"]
+		});
+
+		expect(legacySettings.group_by).toBe("day_added");
+		expect(formatZoteroAnnotations([sampleAnnot], legacySettings))
+			.toEqual(formatZoteroAnnotations([sampleAnnot], { ...annotationsSettings, group_by: "day_added" }));
+		expect(formatZoteroAnnotations([sampleAnnot], legacySettings))
+			.not.toEqual(formatZoteroAnnotations([sampleAnnot], annotationsSettings));
+	});
+
 	it("groups by day added", () => {
 		expect(formatZoteroAnnotations([sampleAnnot], { group_by: "day_added" }))
 			.toEqual([
